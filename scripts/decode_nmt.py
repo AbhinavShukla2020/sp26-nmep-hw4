@@ -50,7 +50,7 @@ def decode(model, src_sentence, max_len=100, device="cpu", mode="top_p"):
 
 
 def main():
-    device = "cuda:3" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
 
     # Model configuration

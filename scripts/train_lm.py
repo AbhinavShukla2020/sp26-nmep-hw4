@@ -74,11 +74,11 @@ def make_no_peak_mask(q, k, device=0):
 
 
 def train_lm():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     data_path = Path("data/lm/")
     dataset = ScreenplayDataset(data_path)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True, collate_fn=collate_fn)
-
-    device = 0
 
     vocab_size = len(tokenizer.vocab)
     num_layers = 6

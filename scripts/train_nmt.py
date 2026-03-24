@@ -61,11 +61,11 @@ def save_checkpoint(epoch: int, model, optimizer, scheduler, latest=True):
 
 
 def train_nmt():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     data_path = Path("data/nmt/europarl/")
     dataset = FrEnDataset(data_path)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True, collate_fn=collate_fn)
-
-    device = 1
 
     vocab_size = len(tokenizer.vocab)
     num_layers = 6
