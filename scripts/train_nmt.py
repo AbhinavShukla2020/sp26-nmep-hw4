@@ -71,9 +71,9 @@ def train_nmt():
     num_layers = 6
     num_heads = 8
     embedding_dim = 512
-    ffn_hidden_dim = 512
-    qk_length = 512
-    value_length = 512
+    ffn_hidden_dim = 4 * embedding_dim  # standard practice
+    qk_length = embedding_dim  # standard practice (note that qk_length != per-head dqk)
+    value_length = embedding_dim  # standard practice
     max_length = 200
     dropout = 0.1
     epochs = 1
