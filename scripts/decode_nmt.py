@@ -55,9 +55,9 @@ def main():
 
     # Model configuration
     vocab_size = len(tokenizer.vocab)
-    num_layers = 6
+    num_layers = 3
     num_heads = 8
-    embedding_dim = 512
+    embedding_dim = 256
     ffn_hidden_dim = 4 * embedding_dim
     qk_length = embedding_dim // num_heads
     value_length = embedding_dim // num_heads

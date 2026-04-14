@@ -65,12 +65,17 @@ def train_nmt():
 
     data_path = Path("data/nmt/europarl/")
     dataset = FrEnDataset(data_path)
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True, collate_fn=collate_fn)
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=True, collate_fn=collate_fn)
 
-    vocab_size = len(tokenizer.vocab)
-    num_layers = 6
+    vocab_size = max(
+    len(tokenizer.vocab),
+    tokenizer.pad_token_id + 1,
+    tokenizer.bos_token_id + 1,
+    tokenizer.eos_token_id + 1,
+    )
+    num_layers = 3
     num_heads = 8
-    embedding_dim = 512
+    embedding_dim = 256
     ffn_hidden_dim = 4 * embedding_dim  # standard practice
     qk_length = embedding_dim // num_heads # standard practice (note that qk_length is a per-head dqk)
     value_length = embedding_dim // num_heads # standard practice
@@ -118,7 +123,7 @@ def train_nmt():
         data_tqdm = tqdm(dataloader)
         for i, (src, tgt) in enumerate(data_tqdm):
             
-            src, tgt = src.to(device), tgt.to(device)
+            src, tgt = src.to(device).long(), tgt.to(device).long()
 
             src = src[:, :max_length]
             tgt = tgt[:, :max_length]

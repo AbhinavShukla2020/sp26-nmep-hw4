@@ -107,7 +107,8 @@ class MultiHeadAttention(nn.Module):
         attention_scores = torch.matmul(Q,K.transpose(-2, -1)) / (self.qk_length ** 0.5)
 
         if mask is not None:
-            attention_scores = attention_scores.masked_fill(mask == 0, float('-inf'))
+            attention_scores = attention_scores.masked_fill(mask, float('-inf'))
+
 
         attention_scores = torch.softmax(attention_scores, dim=-1)
 
