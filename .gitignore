@@ -8,3 +8,6 @@ ckpts
 *.egg-info
 *.pt
 europarl/
+*.pt
+wandb/
+data/
