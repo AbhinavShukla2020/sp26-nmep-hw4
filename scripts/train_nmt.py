@@ -12,7 +12,7 @@ from seq2seq.transformer.transformer import Transformer
 from seq2seq.data.fr_en import FrEnDataset, collate_fn, tokenizer
 
 run = wandb.init(
-    entity="<INSERT ENTITY HERE>",
+    entity="abhinavshukla408-university-of-california-berkeley",
     project="transformer",
     config={
         "learning_rate": 0.00005,
@@ -65,7 +65,7 @@ def train_nmt():
 
     data_path = Path("data/nmt/europarl/")
     dataset = FrEnDataset(data_path)
-    dataloader = DataLoader(dataset, batch_size=4, shuffle=True, collate_fn=collate_fn)
+    dataloader = DataLoader(dataset, batch_size=2, shuffle=True, collate_fn=collate_fn)
 
     vocab_size = len(tokenizer.vocab)
     num_layers = 6
@@ -104,9 +104,12 @@ def train_nmt():
     ).to(device)
 
     # TODO: loss shouldn't include pad tokens, so it should ignore pad token ids
-    criterion = nn.CrossEntropyLoss(ignore_index=...)
+    criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_token_id)
     optimizer = optim.AdamW(model.parameters(), lr=base_lr, betas=[0.9, 0.98], eps=1e-9)
     scheduler = LambdaLR(optimizer, lr_lambda=lr_lambda)
+
+
+    print(f"DEBUG: Vocab size is {vocab_size}")
 
     # train over all epochs, checkpointing every 25 epochs
     for epoch in range(epochs):
@@ -114,30 +117,31 @@ def train_nmt():
         total_loss = 0
         data_tqdm = tqdm(dataloader)
         for i, (src, tgt) in enumerate(data_tqdm):
-            try:
-                src, tgt = src.to(device), tgt.to(device)
+            
+            src, tgt = src.to(device), tgt.to(device)
 
-                tgt_input = tgt[:, :-1]
+            src = src[:, :max_length]
+            tgt = tgt[:, :max_length]
+
+            tgt_input = tgt[:, :-1]
 
                 # TODO: if the input is up to the second-last token,
                 # what should the output be?
-                tgt_output = ...
+            tgt_output = tgt[:, 1:]
 
-                optimizer.zero_grad()
+            optimizer.zero_grad()
 
-                output = model(src, tgt_input)
+            output = model(src, tgt_input)
 
-                loss = criterion(output.reshape(-1, vocab_size), tgt_output.reshape(-1))
-                loss.backward()
-                optimizer.step()
-                scheduler.step()
+            loss = criterion(output.reshape(-1, vocab_size), tgt_output.reshape(-1))
+            loss.backward()
+            optimizer.step()
+            scheduler.step()
 
-                total_loss += loss.item()
-                data_tqdm.set_postfix({"loss": loss})
-                run.log({"loss": loss})
-            except Exception as e:
-                print(e)
-                continue
+            total_loss += loss.item()
+            data_tqdm.set_postfix({"loss": loss})
+            run.log({"loss": loss})
+            
 
             if i % 1000 == 0:
                 print("Saving checkpoint...")
